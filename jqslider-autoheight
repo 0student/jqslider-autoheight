@@ -1,0 +1,56 @@
+/**
+ * https://github.com/0student/jqslider-autoheight
+ * jqslider-scale
+ * License: MIT
+ */
+/**
+ * @author mikhail krughkov
+ * @lastmodified 20170103
+ */
+(function($) {
+	"use strict";
+	$.extend(true, $.ui.slider.prototype, {
+		_autoheightPreConstruct: function (settings) {
+			var slider = this, $sl = slider.element;
+			// only init once
+			if (slider._autoheight) {
+				return;
+			}
+			slider._autoheight = {
+				autoheight: function () {
+					var height = this._calculateHeight();
+					$sl.css({'margin-top': height.offsetTop + 'px', 'margin-bottom': height.offsetBottom + 'px'});
+				},
+				_options: $.extend({
+					// min 10px for good look
+					extraHeight: 10, minHeight: 10
+				}, settings),
+				_calculateHeight: function () {
+					var label = $sl.find('.ui-slider-handle').outerHeight(),
+							top = this._findMaxHeight($sl.find('.ui-slider-handle.ui-slider-handle-label-top .ui-handle-label-container')),
+							bottom = this._findMaxHeight($sl.find('.ui-slider-handle.ui-slider-handle-label-bottom .ui-handle-label-container'));
+					top = Math.max(top, this._options.minHeight);
+					bottom = Math.max(bottom, this._options.minHeight);
+					return {
+						offsetTop: top +this._options.extraHeight,
+						offsetBottom: bottom +this._options.extraHeight
+					}
+				},
+				_findMaxHeight: function (elements) {
+					var maxHeigh = 0;
+					$(elements).each(function(i, element) {
+						var height = $(element).outerHeight();
+						(height > maxHeigh) && (maxHeigh = height);
+					});
+					return maxHeigh;
+				}
+			};
+		},
+
+		autoheight: function(settings) {
+			this._autoheightPreConstruct(settings);
+			this._autoheight.autoheight();
+		}
+
+	});
+})(jQuery);
